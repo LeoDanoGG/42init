@@ -3,8 +3,8 @@
 # ==============================================================================
 # 42init - Interactive project scaffolder for 42 School
 #
-# 42init        Interactive wizard (create a project or sync an existing one)
-# 42init sync   Shortcut: refresh SRCS and the README file list right here
+#   42init        Interactive wizard (create a project or sync an existing one)
+#   42init sync   Shortcut: refresh SRCS and the README file list right here
 # ==============================================================================
 
 BLUE="\033[34m"; GREEN="\033[32m"; YELLOW="\033[33m"
@@ -174,10 +174,14 @@ echo "  2) Python (Common Core)"
 ask_option "Option [1/2] (default 1): "
 LANG_CHOICE="$ANSWER"
 
+NEED_HEADER="n"
 NEED_MAKEFILE="n"
 USE_LIB="n"
 if [ "$LANG_CHOICE" = "1" ]; then
     echo ""
+    ask_yn "📄 Generate $DIR_NAME.h? [Y/n]: " "y"
+    NEED_HEADER="$ANSWER"
+
     ask_yn "🛠️  Generate a Makefile? [Y/n]: " "y"
     NEED_MAKEFILE="$ANSWER"
 
@@ -214,11 +218,11 @@ HEADER_GUARD="$(echo "$DIR_NAME" | tr '[:lower:]' '[:upper:]' | tr -c 'A-Z0-9\n'
 [[ "$HEADER_GUARD" =~ ^[0-9] ]] && HEADER_GUARD="_$HEADER_GUARD"
 
 # ------------------------------------------------------------------------------
-# C project (.h & Makefile)
+# C project
 # ------------------------------------------------------------------------------
 if [ "$LANG_CHOICE" = "1" ]; then
 
-    if can_write "$DIR_NAME.h"; then
+    if [ "$NEED_HEADER" = "y" ] && can_write "$DIR_NAME.h"; then
         info "Creating $DIR_NAME.h..."
         cat << EOF > "$DIR_NAME.h"
 #ifndef $HEADER_GUARD
@@ -233,8 +237,15 @@ if [ "$LANG_CHOICE" = "1" ]; then
 EOF
     fi
 
+    # HEADER is only set if the header really exists (generated now or already
+    # in the repo). Otherwise it stays empty so 'make' never depends on a
+    # missing file; fill it in by hand if your header has another name.
+    HEADER_NAME=""
+    [ -f "$DIR_NAME.h" ] && HEADER_NAME="$DIR_NAME.h"
+
     if [ "$NEED_MAKEFILE" = "y" ] && can_write Makefile; then
         info "Creating Makefile..."
+        [ -z "$HEADER_NAME" ] && warn "No $DIR_NAME.h found: HEADER is left empty in the Makefile."
 
         if [ "$USE_LIB" = "y" ]; then
             cat << EOF > Makefile
@@ -246,7 +257,7 @@ SRCS        =
 
 OBJS        = \$(SRCS:.c=.o)
 
-HEADER      = $DIR_NAME.h
+HEADER      = $HEADER_NAME
 LIBFT_DIR   = ./libft
 LIBFT       = \$(LIBFT_DIR)/libft.a
 INCLUDES    = -I. -I\$(LIBFT_DIR)
@@ -290,7 +301,7 @@ SRCS        =
 # SRCS_END
 
 OBJS        = \$(SRCS:.c=.o)
-HEADER      = $DIR_NAME.h
+HEADER      = $HEADER_NAME
 
 CC          = cc
 CFLAGS      = -Wall -Wextra -Werror -I.
@@ -403,8 +414,6 @@ fi
 if [ "$LANG_CHOICE" = "1" ] && compgen -G "*.c" > /dev/null; then
     sync_sources
 fi
-
-# ------------------------------------------------------------------------------
 
 echo ""
 echo -e "${GREEN}✨ Workspace for '$DIR_NAME' successfully created for [$USERS]!${RESET}"
