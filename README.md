@@ -1,4 +1,8 @@
+*This project has been created for help in the development of the 42 curriculum by legomez.*
+
 # 42 Project Initializer (`42init` for 42 Cursus)
+
+<img src="https://skillicons.dev/icons?i=bash&theme=dark" width="150"/> 
 
 An interactive CLI assistant (*wizard*) for 42 School students to quickly scaffold project workspaces, clone Vogsphere/GitHub repositories, generate language-specific boilerplate (C & Python), and keep your source files synchronized between the `Makefile` and the `README.md`.
 
