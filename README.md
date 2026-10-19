@@ -21,7 +21,7 @@ An interactive CLI assistant (*wizard*) for 42 School students to quickly scaffo
    - **Create / Scaffold:** sets up a brand-new C or Python workspace.
    - **Sync / Update:** scans the current directory for `.c` files and updates both the `Makefile` and the `README.md`. A shortcut is available: `42init sync`.
 3. **C and Python support:**
-   - **C:** header file (`.h`) with a valid uppercase include guard, a `Makefile` with `-Wall -Wextra -Werror`, header dependency tracking, and optional linking against your own `libft`.
+   - **C:** optional header file (`.h`) with a valid uppercase include guard, a `Makefile` with `-Wall -Wextra -Werror`, header dependency tracking, and optional linking against your own `libft`.
    - **Python:** an executable `main.py` entrypoint and an empty `requirements.txt`.
 4. **Non-destructive:** files that already exist (`.h`, `Makefile`, `README.md`, `main.py`) are never overwritten; the script tells you which ones it skipped. It is safe to run on a cloned repository.
 5. **Clean source grouping:** `.c` files are listed 5 per line with aligned continuation lines in the `Makefile` and inside a code block in the `README.md`.
@@ -92,11 +92,16 @@ Run the command from the directory where you want the project folder to be creat
    1. C (Common Core / Piscine)
    2. Python (Common Core)
 6. **C options** *(only if C is selected)*:
+   - Generate `<name>.h`? `[Y/n]`
    - Generate a `Makefile`? `[Y/n]`
    - Link against your own `libft` (`./libft`)? `[y/N]`
 7. **Documentation:** generate `README.md`? `[Y/n]`
 
 If you cloned a repository that already contains `.c` files in its root, they are added to `SRCS` and to the README list automatically.
+
+### About the header option
+
+Say **no** to the header when a cloned repository already ships its own. The `Makefile` links the header as a dependency of every `.o` file through the `HEADER` variable, which is filled in only if `<name>.h` actually exists. If it does not (for example, your header has another name), `HEADER` is left empty and `make` keeps working; set it by hand to the right file so that editing it triggers a recompilation.
 
 ### About the `libft` option
 
@@ -117,10 +122,10 @@ cd my_project
 
 The script scans for `.c` files, groups them 5 per line, and rewrites only what is **between the markers**:
 
-| File			| Start marker				| End marker			|
-|---------------|---------------------------|-----------------------|
-| `Makefile`	| `# SRCS_START`			| `# SRCS_END`			|
-| `README.md`	| `<!-- FILES_START -->`	| `<!-- FILES_END -->`	|
+| File | Start marker | End marker |
+|------|--------------|------------|
+| `Makefile` | `# SRCS_START` | `# SRCS_END` |
+| `README.md` | `<!-- FILES_START -->` | `<!-- FILES_END -->` |
 
 If a file or its markers are missing, that file is skipped with a warning and nothing else is touched. Running sync repeatedly gives the same result.
 
