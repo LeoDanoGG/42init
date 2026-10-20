@@ -258,10 +258,13 @@ SRCS        =
 OBJS        = \$(SRCS:.c=.o)
 
 HEADER      = $HEADER_NAME
+
+# Library template (libft). For another library with the same layout
+# (a folder with its own Makefile that builds a .a), edit LIBFT_DIR,
+# LIBFT and the -lft flag in the \$(NAME) rule.
 LIBFT_DIR   = ./libft
 LIBFT       = \$(LIBFT_DIR)/libft.a
 INCLUDES    = -I. -I\$(LIBFT_DIR)
-LIBS        = -L\$(LIBFT_DIR) -lft
 
 CC          = cc
 CFLAGS      = -Wall -Wextra -Werror
@@ -270,27 +273,25 @@ RM          = rm -f
 all: \$(NAME)
 
 \$(NAME): \$(LIBFT) \$(OBJS)
-	\$(CC) \$(CFLAGS) \$(OBJS) \$(LIBS) -o \$(NAME)
+	\$(CC) \$(CFLAGS) \$(OBJS) -L\$(LIBFT_DIR) -lft -o \$(NAME)
 
-\$(LIBFT): FORCE
-	@\$(MAKE) -C \$(LIBFT_DIR)
+\$(LIBFT):
+	\$(MAKE) -C \$(LIBFT_DIR)
 
 %.o: %.c \$(HEADER)
 	\$(CC) \$(CFLAGS) \$(INCLUDES) -c \$< -o \$@
 
 clean:
 	\$(RM) \$(OBJS)
-	@if [ -d "\$(LIBFT_DIR)" ]; then \$(MAKE) -C \$(LIBFT_DIR) clean; fi
+	\$(MAKE) -C \$(LIBFT_DIR) clean
 
 fclean: clean
 	\$(RM) \$(NAME)
-	@if [ -d "\$(LIBFT_DIR)" ]; then \$(MAKE) -C \$(LIBFT_DIR) fclean; fi
+	\$(MAKE) -C \$(LIBFT_DIR) fclean
 
 re: fclean all
 
-FORCE:
-
-.PHONY: all clean fclean re FORCE
+.PHONY: all clean fclean re
 EOF
         else
             cat << EOF > Makefile
